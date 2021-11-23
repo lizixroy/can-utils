@@ -322,6 +322,8 @@ int main(int argc, char **argv)
 	last_tv.tv_sec = 0;
 	last_tv.tv_usec = 0;
 
+	printf("Roy's code is running\n");
+
 	while ((opt = getopt(argc, argv, "t:HciaSs:lDdxLn:r:he8T:?")) != -1) {
 		switch (opt) {
 		case 't':
