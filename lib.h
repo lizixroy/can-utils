@@ -58,6 +58,7 @@
 
 /* CAN FD ASCII hex long representation with binary output */
 #define CL_LONGCFSZ (2*CL_ID + sizeof("   [255]  ") + (64*CL_BINDATA))
+#define CL_MM_STR_SZ 100
 
 /* CAN DLC to real data length conversion helpers especially for CAN FD */
 
@@ -183,11 +184,12 @@ void sprint_canframe(char *buf , struct canfd_frame *cf, int sep, int maxdlen);
 #define CANLIB_VIEW_ERROR	0x8
 #define CANLIB_VIEW_INDENT_SFF	0x10
 #define CANLIB_VIEW_LEN8_DLC	0x20
+#define CANLIB_VIEW_MM          0x80
 
 #define SWAP_DELIMITER '`'
 
 void fprint_long_canframe(FILE *stream , struct canfd_frame *cf, char *eol, int view, int maxdlen);
-void sprint_long_canframe(char *buf , struct canfd_frame *cf, int view, int maxdlen);
+void sprint_long_canframe(char *buf, char *mmDebugBuf, struct canfd_frame *cf, int view, int maxdlen);
 /*
  * Creates a CAN frame hexadecimal output in user readable format.
  *

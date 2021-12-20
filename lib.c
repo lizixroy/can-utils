@@ -45,6 +45,7 @@
 #include <stdint.h>
 #include <stdio.h>
 #include <string.h>
+#include <stdlib.h>
 
 #include <linux/can.h>
 #include <linux/can/error.h>
@@ -55,6 +56,7 @@
 #define CANID_DELIM '#'
 #define CC_DLC_DELIM '_'
 #define DATA_SEPERATOR '.'
+#define MAX_FLOAT_STR_LEN 6
 
 const char hex_asc_upper[] = "0123456789ABCDEF";
 
@@ -65,6 +67,19 @@ static inline void put_hex_byte(char *buf, __u8 byte)
 {
 	buf[0] = hex_asc_upper_hi(byte);
 	buf[1] = hex_asc_upper_lo(byte);
+}
+
+static inline void stringForFloat(uint8_t *data, char *bufferOutput)
+{
+  union {
+    float n;
+    unsigned char bytes[4];
+  } u;
+
+  for (int i = 0; i < 4; i++) {
+  	u.bytes[i] = data[i + 1];
+  }  
+  gcvt(u.n, MAX_FLOAT_STR_LEN, bufferOutput);
 }
 
 static inline void _put_id(char *buf, int end_offset, canid_t id)
@@ -343,18 +358,27 @@ void fprint_long_canframe(FILE *stream , struct canfd_frame *cf, char *eol, int 
 	/* documentation see lib.h */
 
 	char buf[CL_LONGCFSZ];
+	char *mmDebugBuf = NULL;
 
-	sprint_long_canframe(buf, cf, view, maxdlen);
+	if (view & CANLIB_VIEW_MM) {
+		char array[CL_MM_STR_SZ];
+		mmDebugBuf = array;
+	}
+
+	sprint_long_canframe(buf, mmDebugBuf, cf, view, maxdlen);
 	fprintf(stream, "%s", buf);
+	if (view & CANLIB_VIEW_MM) {
+		fprintf(stream, "\n\t%s", mmDebugBuf);
+	}
 	if ((view & CANLIB_VIEW_ERROR) && (cf->can_id & CAN_ERR_FLAG)) {
 		snprintf_can_error_frame(buf, sizeof(buf), cf, "\n\t");
-		fprintf(stream, "\n\t%s", buf);
+		fprintf(stream, "\n\t%s", buf);		
 	}
 	if (eol)
 		fprintf(stream, "%s", eol);
 }
 
-void sprint_long_canframe(char *buf , struct canfd_frame *cf, int view, int maxdlen) {
+void sprint_long_canframe(char *buf, char *mmDebugBuf, struct canfd_frame *cf, int view, int maxdlen) {
 	/* documentation see lib.h */
 
 	int i, j, dlen, offset;
@@ -444,6 +468,15 @@ void sprint_long_canframe(char *buf , struct canfd_frame *cf, int view, int maxd
 				buf[offset++] = ' ';
 				put_hex_byte(buf + offset, cf->data[i]);
 				offset += 2;
+				if (view & CANLIB_VIEW_MM) 
+				{
+					if (len < 5) {						
+						sprintf(mmDebugBuf, "Invalid length '%d' for mm debugging -- 5 required\n", len);
+					}
+					else {
+						stringForFloat(cf->data, mmDebugBuf);
+					}
+				}				
 			}
 		}
 	}

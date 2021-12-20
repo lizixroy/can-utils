@@ -322,7 +322,7 @@ int main(int argc, char **argv)
 	last_tv.tv_sec = 0;
 	last_tv.tv_usec = 0;
 
-	while ((opt = getopt(argc, argv, "t:HciaSs:lDdxLn:r:he8T:?")) != -1) {
+	while ((opt = getopt(argc, argv, "t:HciaSs:lDdxLn:r:he8mT:?")) != -1) {
 		switch (opt) {
 		case 't':
 			timestamp = optarg[0];
@@ -364,6 +364,10 @@ int main(int argc, char **argv)
 
 		case '8':
 			view |= CANLIB_VIEW_LEN8_DLC;
+			break;
+
+		case 'm':
+			view |= CANLIB_VIEW_MM;
 			break;
 
 		case 's':

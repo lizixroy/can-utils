@@ -72,7 +72,7 @@ int main(void)
 			return 1;
 		}
 
-		sprint_long_canframe(ascframe, &cf,
+		sprint_long_canframe(ascframe, NULL /* mmDebugBuf */, &cf,
 				     (CANLIB_VIEW_INDENT_SFF | CANLIB_VIEW_ASCII),
 				     maxdlen); /* with ASCII output */
 
