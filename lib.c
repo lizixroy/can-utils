@@ -58,6 +58,11 @@
 #define DATA_SEPERATOR '.'
 #define MAX_FLOAT_STR_LEN 6
 
+#define LOGGER_FLOAT  1
+#define LOGGER_UINT8  2
+#define LOGGER_UINT16 3
+#define LOGGER_3_PHASE_CURRENT 4
+
 const char hex_asc_upper[] = "0123456789ABCDEF";
 
 #define hex_asc_upper_lo(x)	hex_asc_upper[((x) & 0x0F)]
@@ -80,6 +85,29 @@ static inline void stringForFloat(uint8_t *data, char *bufferOutput)
   	u.bytes[i] = data[i + 1];
   }  
   gcvt(u.n, MAX_FLOAT_STR_LEN, bufferOutput);
+}
+
+static inline void stringFor3PhaseCurrent(uint8_t *data, char *bufferOutput)
+{
+	uint8_t higherHalfA = data[1];
+	uint8_t lowerHalfA = data[2];
+	uint16_t phaseACurrent = higherHalfA;
+	phaseACurrent <<= 8;
+	phaseACurrent |= lowerHalfA;
+
+	uint8_t higherHalfB = data[3];
+	uint8_t lowerHalfB = data[4];
+	uint16_t phaseBCurrent = higherHalfB;
+	phaseBCurrent <<= 8;
+	phaseBCurrent |= lowerHalfB;
+
+	uint8_t higherHalfC = data[5];
+	uint8_t lowerHalfC = data[6];
+	uint16_t phaseCCurrent = higherHalfC;
+	phaseCCurrent <<= 8;
+	phaseCCurrent |= lowerHalfC;
+
+	sprintf(bufferOutput, "A: %d, B: %d, C: %d\n", phaseACurrent, phaseBCurrent, phaseCCurrent);
 }
 
 static inline void _put_id(char *buf, int end_offset, canid_t id)
@@ -470,13 +498,26 @@ void sprint_long_canframe(char *buf, char *mmDebugBuf, struct canfd_frame *cf, i
 				offset += 2;
 				if (view & CANLIB_VIEW_MM) 
 				{
-					if (len < 5) {						
-						sprintf(mmDebugBuf, "Invalid length '%d' for mm debugging -- 5 required\n", len);
+					int logType = cf->data[0];
+					if (logType == LOGGER_FLOAT)
+					{
+						if (len < 5) {						
+							sprintf(mmDebugBuf, "Invalid length '%d' for logging float -- 5 required\n", len);
+						}
+						else {
+							stringForFloat(cf->data, mmDebugBuf);
+						}
 					}
-					else {
-						stringForFloat(cf->data, mmDebugBuf);
+					else if (logType == LOGGER_3_PHASE_CURRENT)
+					{
+						if (len < 7) {						
+							sprintf(mmDebugBuf, "Invalid length '%d' for logging 3 phase current -- 7 required\n", len);
+						}
+						else {
+							stringFor3PhaseCurrent(cf->data, mmDebugBuf);
+						}
 					}
-				}				
+				}
 			}
 		}
 	}
