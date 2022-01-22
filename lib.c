@@ -87,27 +87,44 @@ static inline void stringForFloat(uint8_t *data, char *bufferOutput)
   gcvt(u.n, MAX_FLOAT_STR_LEN, bufferOutput);
 }
 
+// Values for ODrive
+static float phase_current_rev_gain_ = 0.025f;
+static float shunt_conductance = 2000;
+
+static float phase_current_from_adcval(uint32_t ADCValue) {
+    int adcval_bal = (int)ADCValue - (1 << 11);
+    float amp_out_volt = (3.3f / (float)(1 << 12)) * (float)adcval_bal;
+    float shunt_volt = amp_out_volt * phase_current_rev_gain_;
+    float current = shunt_volt * shunt_conductance;
+    return current;
+}
+
 static inline void stringFor3PhaseCurrent(uint8_t *data, char *bufferOutput)
 {
 	uint8_t higherHalfA = data[1];
 	uint8_t lowerHalfA = data[2];
-	uint16_t phaseACurrent = higherHalfA;
-	phaseACurrent <<= 8;
-	phaseACurrent |= lowerHalfA;
+	uint16_t phaseACurrentADCValue = higherHalfA;
+	phaseACurrentADCValue <<= 8;
+	phaseACurrentADCValue |= lowerHalfA;
 
 	uint8_t higherHalfB = data[3];
 	uint8_t lowerHalfB = data[4];
-	uint16_t phaseBCurrent = higherHalfB;
-	phaseBCurrent <<= 8;
-	phaseBCurrent |= lowerHalfB;
+	uint16_t phaseBCurrentADCValue = higherHalfB;
+	phaseBCurrentADCValue <<= 8;
+	phaseBCurrentADCValue |= lowerHalfB;
 
 	uint8_t higherHalfC = data[5];
 	uint8_t lowerHalfC = data[6];
-	uint16_t phaseCCurrent = higherHalfC;
-	phaseCCurrent <<= 8;
-	phaseCCurrent |= lowerHalfC;
+	uint16_t phaseCCurrentADCValue = higherHalfC;
+	phaseCCurrentADCValue <<= 8;
+	phaseCCurrentADCValue |= lowerHalfC;
 
-	sprintf(bufferOutput, "A: %d, B: %d, C: %d\n", phaseACurrent, phaseBCurrent, phaseCCurrent);
+	// Convert ADC values into real current values.
+	float phaseACurrent = phase_current_from_adcval(phaseACurrentADCValue);
+	float phaseBCurrent = phase_current_from_adcval(phaseBCurrentADCValue);
+	float phaseCCurrent = phase_current_from_adcval(phaseCCurrentADCValue);
+
+	sprintf(bufferOutput, "A: %f, B: %f, C: %f\n", phaseACurrent, phaseBCurrent, phaseCCurrent);
 }
 
 static inline void _put_id(char *buf, int end_offset, canid_t id)
