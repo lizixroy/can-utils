@@ -88,8 +88,12 @@ static inline void stringForFloat(uint8_t *data, char *bufferOutput)
 }
 
 // Values for ODrive
-static float phase_current_rev_gain_ = 0.025f;
-static float shunt_conductance = 2000;
+// static float phase_current_rev_gain_ = 0.025f;
+// static float shunt_conductance = 2000;
+
+// Values for MM
+static float phase_current_rev_gain_ = 0.1f;
+static float shunt_conductance = 100;
 
 static float phase_current_from_adcval(uint32_t ADCValue) {
     int adcval_bal = (int)ADCValue - (1 << 11);
