@@ -87,6 +87,29 @@ static inline void stringForFloat(uint8_t *data, char *bufferOutput)
   gcvt(u.n, MAX_FLOAT_STR_LEN, bufferOutput);
 }
 
+static inline void stringForTwoFloats(uint8_t *data, char *bufferOutput)
+{
+  union {
+    float n;
+    unsigned char bytes[4];
+  } u;	
+
+  char str1[20];
+  char str2[20];
+
+  for (int i = 0; i < 4; i++) {
+  	u.bytes[i] = data[i];
+  }
+	gcvt(u.n, MAX_FLOAT_STR_LEN, str1);
+
+	for (int i = 4; i < 8; i++) {
+  	u.bytes[i - 4] = data[i];
+  }
+  gcvt(u.n, MAX_FLOAT_STR_LEN, str2);
+
+	sprintf(bufferOutput, "a: %s, b: %s\n", str1, str2);
+}
+
 // Values for ODrive
 // static float phase_current_rev_gain_ = 0.025f;
 // static float shunt_conductance = 2000;
@@ -519,25 +542,31 @@ void sprint_long_canframe(char *buf, char *mmDebugBuf, struct canfd_frame *cf, i
 				offset += 2;
 				if (view & CANLIB_VIEW_MM) 
 				{
-					int logType = cf->data[0];
-					if (logType == LOGGER_FLOAT)
-					{
-						if (len < 5) {						
-							sprintf(mmDebugBuf, "Invalid length '%d' for logging float -- 5 required\n", len);
-						}
-						else {
-							stringForFloat(cf->data, mmDebugBuf);
-						}
-					}
-					else if (logType == LOGGER_3_PHASE_CURRENT)
-					{
-						if (len < 7) {						
-							sprintf(mmDebugBuf, "Invalid length '%d' for logging 3 phase current -- 7 required\n", len);
-						}
-						else {
-							stringFor3PhaseCurrent(cf->data, mmDebugBuf);
-						}
-					}
+					// if (1) {
+						stringForTwoFloats(cf->data, mmDebugBuf);
+					// }
+					// else {
+					// 	int logType = cf->data[0];
+					// 	if (logType == LOGGER_FLOAT)
+					// 	{
+					// 		if (len < 5) {						
+					// 			sprintf(mmDebugBuf, "Invalid length '%d' for logging float -- 5 required\n", len);
+					// 		}
+					// 		else {
+					// 			stringForFloat(cf->data, mmDebugBuf);
+					// 		}
+					// 	}
+					// 	else if (logType == LOGGER_3_PHASE_CURRENT)
+					// 	{
+					// 		if (len < 7) {						
+					// 			sprintf(mmDebugBuf, "Invalid length '%d' for logging 3 phase current -- 7 required\n", len);
+					// 		}
+					// 		else {
+					// 			stringFor3PhaseCurrent(cf->data, mmDebugBuf);
+					// 		}
+					// 	}						
+					// }
+
 				}
 			}
 		}
