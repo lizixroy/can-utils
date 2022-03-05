@@ -542,10 +542,12 @@ void sprint_long_canframe(char *buf, char *mmDebugBuf, struct canfd_frame *cf, i
 				offset += 2;
 				if (view & CANLIB_VIEW_MM) 
 				{
-					if ( len == 8 ) {
-						stringForTwoFloats(cf->data, mmDebugBuf);
-					}
-					else {
+					printf("len: %d\n", cf->len);
+
+					// if ( cf->len == 8 ) {
+					// 	stringForTwoFloats(cf->data, mmDebugBuf);
+					// }
+					// else {
 						int logType = cf->data[0];
 						if (logType == LOGGER_FLOAT)
 						{
@@ -565,7 +567,7 @@ void sprint_long_canframe(char *buf, char *mmDebugBuf, struct canfd_frame *cf, i
 								stringFor3PhaseCurrent(cf->data, mmDebugBuf);
 							}
 						}						
-					}
+					// }
 				}
 			}
 		}
