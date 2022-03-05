@@ -542,8 +542,6 @@ void sprint_long_canframe(char *buf, char *mmDebugBuf, struct canfd_frame *cf, i
 				offset += 2;
 				if (view & CANLIB_VIEW_MM) 
 				{
-					printf("len: %d\n", cf->len);
-
 					// if ( cf->len == 8 ) {
 					// 	stringForTwoFloats(cf->data, mmDebugBuf);
 					// }
