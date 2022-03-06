@@ -543,28 +543,28 @@ void sprint_long_canframe(char *buf, char *mmDebugBuf, struct canfd_frame *cf, i
 				if (view & CANLIB_VIEW_MM) 
 				{
 					// if ( cf->len == 8 ) {
-					// 	stringForTwoFloats(cf->data, mmDebugBuf);
+						stringForTwoFloats(cf->data, mmDebugBuf);
 					// }
 					// else {
-						int logType = cf->data[0];
-						if (logType == LOGGER_FLOAT)
-						{
-							if (len < 5) {						
-								sprintf(mmDebugBuf, "Invalid length '%d' for logging float -- 5 required\n", len);
-							}
-							else {
-								stringForFloat(cf->data, mmDebugBuf);
-							}
-						}
-						else if (logType == LOGGER_3_PHASE_CURRENT)
-						{
-							if (len < 7) {						
-								sprintf(mmDebugBuf, "Invalid length '%d' for logging 3 phase current -- 7 required\n", len);
-							}
-							else {
-								stringFor3PhaseCurrent(cf->data, mmDebugBuf);
-							}
-						}						
+						// int logType = cf->data[0];
+						// if (logType == LOGGER_FLOAT)
+						// {
+						// 	if (len < 5) {						
+						// 		sprintf(mmDebugBuf, "Invalid length '%d' for logging float -- 5 required\n", len);
+						// 	}
+						// 	else {
+						// 		stringForFloat(cf->data, mmDebugBuf);
+						// 	}
+						// }
+						// else if (logType == LOGGER_3_PHASE_CURRENT)
+						// {
+						// 	if (len < 7) {						
+						// 		sprintf(mmDebugBuf, "Invalid length '%d' for logging 3 phase current -- 7 required\n", len);
+						// 	}
+						// 	else {
+						// 		stringFor3PhaseCurrent(cf->data, mmDebugBuf);
+						// 	}
+						// }						
 					// }
 				}
 			}
